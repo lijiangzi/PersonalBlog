@@ -22,10 +22,11 @@
               url: "/editEveryDay",
               method: "post",
               data: content,
-              success: function(resp) {
+              success: function(resp) {  //返回成功的数据，并且清空编辑页面。
                   var result = JSON.parse(resp);
+                  console.log(result)
                   alert(result.msg);
-                  $("#editor").html("");
+                  $("#editor").html("");   
               },
               error: function (resp) {
                   console.log(resp);

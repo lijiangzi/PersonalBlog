@@ -5,7 +5,7 @@ var timeUtil = require("../util/TimeUtil");
 var respUtil = require("../util/RespUtil");
 var url = require("url");
 
-var path = new Map();
+var path = new Map(); 
 
 function queryHotBlog(request, response) {
     blogDao.queryHotBlog(5, function (result) {
@@ -61,20 +61,22 @@ function queryBlogByPage(request, response) {
 path.set("/queryBlogByPage", queryBlogByPage);
 
 function editBlog(request, response) {
-    var params = url.parse(request.url, true).query;
-    var tags = params.tags.replace(/ /g, "").replace("，", ",");
+    var params = url.parse(request.url, true).query;  //要用到url参数
+    var tags = params.tags.replace(/ /g, "").replace("，", ","); //防止用户输入中文逗号，因此我们把中文逗号换成英文逗号。
     request.on("data", function (data) {
         blogDao.insertBlog(params.title, data.toString(), tags, 0, timeUtil.getNow(), timeUtil.getNow(), function (result) {
             response.writeHead(200);
             response.write(respUtil.writeResult("success", "添加成功", null));
             response.end();
+
+            //前端数据操作成功，但是别忘了数据库中的博客和标签是相互映射的。因此我们还要插入相应的tag
             var blogId = result.insertId;
-            var tagList = tags.split(",");
+            var tagList = tags.split(","); //标签不止一个
             for (var i = 0 ; i < tagList.length ; i ++) {
                 if (tagList[i] == "") {
                     continue;
                 }
-                queryTag(tagList[i], blogId);
+                queryTag(tagList[i], blogId); //查询该标签的博客是否存在
             }
         });
     });
@@ -83,10 +85,10 @@ path.set("/editBlog", editBlog);
 
 function queryTag(tag, blogId) {
     tagsDao.queyrTag(tag, function (result) {
-        console.log()
-       if (result == null || result.length == 0) {
+      
+       if (result == null || result.length == 0) { //没有该tag标签则插入tag标签，然后建立映射
             insertTag(tag, blogId);
-       } else {
+       } else {  //有该tag标签就直接插入 标签和博客映射
            tagBlogMappingDao.insertTagBlogMapping(result[0].id, blogId, timeUtil.getNow(), timeUtil.getNow(), function (result) {});
        }
     });
@@ -94,7 +96,7 @@ function queryTag(tag, blogId) {
 
 function insertTag(tag, blogId) {
     tagsDao.insertTag(tag, timeUtil.getNow(), timeUtil.getNow(), function (result) {
-        insertTagBlogMapping(result.insertId, blogId);
+        insertTagBlogMapping(result.insertId, blogId); //tagid和blogid插入到映射表中
     });
 }
 

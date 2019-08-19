@@ -89,7 +89,7 @@ var articleList = new Vue({
                     });
                 } else {
                     axios({
-                        method: "get",
+                        method: "get",      //数据库查页数是从0开始的，但是我们的页数是从1开始的，所以要page-1
                         url: "/queryByTag?page=" + (page - 1) + "&pageSize=" + pageSize + "&tag=" + tag
                     }).then(function(resp) {
                         var result = resp.data.data;

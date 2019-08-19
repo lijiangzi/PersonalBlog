@@ -10,6 +10,7 @@ function editEveryDay(request, response) {
             response.write(respUtil.writeResult("success", "添加成功", null));
             response.end();
         });
+        // console.log(data.toString().trim()) 
     })
 }
 path.set("/editEveryDay", editEveryDay);
